@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fasting Atlas Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+      :root {
+        color-scheme: only light;
+        --ink: #0e1b1f;
+        --ink-soft: #2b4249;
+        --paper: #f8f5f0;
+        --card: #ffffff;
+        --accent: #0d6d6b;
+        --accent-bright: #1ea49b;
+        --sun: #f49f3f;
+        --rose: #e56a5b;
+        --mint: #c7f1e9;
+        --sky: #d8e9f9;
+        --shadow: 0 18px 55px rgba(14, 27, 31, 0.12);
+        --radius-lg: 26px;
+        --radius-md: 18px;
+        --radius-sm: 12px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        color: var(--ink);
+        background: linear-gradient(120deg, #fff4df 0%, #f1f7ff 38%, #e6fff5 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .ambient {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(1px);
+        opacity: 0.6;
+        animation: float 18s ease-in-out infinite;
+      }
+
+      .orb.orb-1 {
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle at 30% 30%, #fff5d8, #ffd8a8);
+        top: -80px;
+        left: -120px;
+      }
+
+      .orb.orb-2 {
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle at 40% 40%, #e0f7ff, #b6e9ff);
+        top: 80px;
+        right: -100px;
+        animation-delay: -4s;
+      }
+
+      .orb.orb-3 {
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle at 50% 50%, #e6ffe9, #b8f2d2);
+        bottom: -60px;
+        left: 10%;
+        animation-delay: -9s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+        50% {
+          transform: translate3d(0, 20px, 0);
+        }
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 48px 24px 64px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        gap: 32px;
+        align-items: center;
+        animation: rise 0.8s ease forwards;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.3em;
+        font-size: 0.75rem;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+
+      h1 {
+        font-family: "Fraunces", serif;
+        font-weight: 600;
+        font-size: clamp(2.2rem, 3vw, 3.5rem);
+        margin: 0 0 12px;
+      }
+
+      .lead {
+        font-size: 1.05rem;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        margin-bottom: 24px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .chip {
+        background: rgba(13, 109, 107, 0.12);
+        color: var(--accent);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .btn {
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 999px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 10px 18px rgba(13, 109, 107, 0.2);
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 24px rgba(13, 109, 107, 0.28);
+      }
+
+      .status {
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+      }
+
+      .hero-panel {
+        background: var(--card);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        box-shadow: var(--shadow);
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero-panel h2 {
+        font-family: "Fraunces", serif;
+        margin: 0;
+        font-size: 1.3rem;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+      }
+
+      .stat-card {
+        background: var(--paper);
+        border-radius: var(--radius-md);
+        padding: 14px 16px;
+        display: grid;
+        gap: 6px;
+      }
+
+      .stat-card span {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--ink-soft);
+      }
+
+      .stat-card strong {
+        font-size: 1.2rem;
+      }
+
+      .dashboard {
+        margin-top: 42px;
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: var(--radius-lg);
+        padding: 22px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        animation: fadeUp 0.7s ease both;
+        animation-delay: var(--delay, 0s);
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card h3 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--ink-soft);
+      }
+
+      .chart {
+        position: relative;
+        height: 260px;
+        width: 100%;
+      }
+
+      .chart canvas {
+        width: 100%;
+        height: 100%;
+      }
+
+      .card-wide {
+        grid-column: span 7;
+      }
+
+      .card-mid {
+        grid-column: span 5;
+      }
+
+      .card-half {
+        grid-column: span 4;
+      }
+
+      .insights {
+        display: grid;
+        gap: 10px;
+      }
+
+      .insight {
+        background: linear-gradient(120deg, #fff2d6, #f2fff9);
+        border-radius: var(--radius-md);
+        padding: 12px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+      }
+
+      .insight span {
+        color: var(--ink-soft);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+
+      .recent-table th,
+      .recent-table td {
+        text-align: left;
+        padding: 8px 6px;
+        border-bottom: 1px solid rgba(14, 27, 31, 0.08);
+      }
+
+      .recent-table th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-soft);
+      }
+
+      footer {
+        margin-top: 36px;
+        color: var(--ink-soft);
+        font-size: 0.85rem;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      @media (max-width: 960px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard {
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+        }
+
+        .card-wide,
+        .card-mid,
+        .card-half {
+          grid-column: span 6;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          padding: 32px 18px 48px;
+        }
+
+        .dashboard {
+          grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .card-wide,
+        .card-mid,
+        .card-half {
+          grid-column: span 1;
+        }
+
+        .hero-actions {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ambient">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+
+    <div class="page">
+      <header class="hero">
+        <div>
+          <div class="eyebrow">Fasting Dashboard</div>
+          <h1>Fasting Atlas</h1>
+          <p class="lead">
+            Live charts and insights from your Google Sheet. Track how long you fast,
+            how consistently you hit your goals, and where your momentum is building.
+          </p>
+          <div class="hero-actions">
+            <span class="chip">Source: Google Sheets</span>
+            <button class="btn" id="refreshBtn">Refresh Data</button>
+            <span class="status" id="statusText">Ready.</span>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <h2>Snapshot</h2>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <span>Total Fasts</span>
+              <strong id="statTotal">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>Average Duration</span>
+              <strong id="statAverage">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>Longest Fast</span>
+              <strong id="statLongest">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>Goal Hit Rate</span>
+              <strong id="statGoalRate">--</strong>
+            </div>
+          </div>
+          <div class="stat-card" style="background: #fff4e6">
+            <span>Most Recent Fast</span>
+            <strong id="statRecent">--</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="card card-wide" style="--delay: 0.1s">
+          <h3>Duration Over Time</h3>
+          <p>Track every completed fast from start to finish.</p>
+          <div class="chart">
+            <canvas id="durationChart"></canvas>
+          </div>
+        </section>
+
+        <section class="card card-mid" style="--delay: 0.15s">
+          <h3>Goal vs. Actual</h3>
+          <p>How close each fast came to your stated goal.</p>
+          <div class="chart">
+            <canvas id="goalChart"></canvas>
+          </div>
+        </section>
+
+        <section class="card card-half" style="--delay: 0.2s">
+          <h3>Duration Mix</h3>
+          <p>Distribution of fast lengths.</p>
+          <div class="chart">
+            <canvas id="distributionChart"></canvas>
+          </div>
+        </section>
+
+        <section class="card card-half" style="--delay: 0.25s">
+          <h3>Momentum</h3>
+          <p>Rolling averages and consistency highlights.</p>
+          <div class="insights">
+            <div class="insight">
+              <span>Rolling 7 Avg</span>
+              <strong id="statRolling">--</strong>
+            </div>
+            <div class="insight">
+              <span>Consistency</span>
+              <strong id="statConsistency">--</strong>
+            </div>
+            <div class="insight">
+              <span>Total Hours</span>
+              <strong id="statTotalHours">--</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card card-wide" style="--delay: 0.3s">
+          <h3>Recent Fasts</h3>
+          <p>Latest entries from your sheet.</p>
+          <div style="overflow-x: auto">
+            <table class="recent-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Duration</th>
+                  <th>Goal</th>
+                  <th>Delta</th>
+                </tr>
+              </thead>
+              <tbody id="recentTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div>Last updated: <span id="lastUpdated">--</span></div>
+        <div>
+          Data pulls from columns A-O in your public Google Sheet. If charts are empty,
+          confirm the sheet is shared to "Anyone with the link."
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const SHEET_ID = "1AgRJFJfRu6lz_73qK8KNytFWQv9HrwwZnr5aeQfcy0M";
+      const SHEET_NAME = "Form Responses 2";
+      const state = { charts: {} };
+
+      const statusText = document.getElementById("statusText");
+      const refreshBtn = document.getElementById("refreshBtn");
+
+      function setStatus(message) {
+        statusText.textContent = message;
+      }
+
+      function csvToRows(csv) {
+        const rows = [];
+        let row = [];
+        let current = "";
+        let inQuotes = false;
+
+        for (let i = 0; i < csv.length; i += 1) {
+          const char = csv[i];
+          if (inQuotes) {
+            if (char === '"') {
+              if (csv[i + 1] === '"') {
+                current += '"';
+                i += 1;
+              } else {
+                inQuotes = false;
+              }
+            } else {
+              current += char;
+            }
+          } else if (char === '"') {
+            inQuotes = true;
+          } else if (char === ",") {
+            row.push(current);
+            current = "";
+          } else if (char === "\n") {
+            row.push(current);
+            rows.push(row);
+            row = [];
+            current = "";
+          } else if (char !== "\r") {
+            current += char;
+          }
+        }
+
+        if (current.length || row.length) {
+          row.push(current);
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      function parseNumber(value) {
+        if (value === null || value === undefined) return null;
+        const cleaned = value.toString().trim();
+        if (!cleaned) return null;
+        const num = Number(cleaned);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function parseDurationToHours(value) {
+        if (!value) return null;
+        const raw = value.toString().trim();
+        if (!raw) return null;
+        if (raw.includes(":")) {
+          const parts = raw.split(":").map((item) => Number(item));
+          if (parts.some((part) => Number.isNaN(part))) return null;
+          const hours = parts[0] || 0;
+          const minutes = parts[1] || 0;
+          const seconds = parts[2] || 0;
+          return hours + minutes / 60 + seconds / 3600;
+        }
+
+        const numeric = parseNumber(raw);
+        if (numeric === null) return null;
+        if (numeric <= 1.5) return numeric * 24;
+        return numeric;
+      }
+
+      function parseSheetDate(value) {
+        if (!value) return null;
+        const raw = value.toString().trim();
+        if (!raw) return null;
+        const numeric = parseNumber(raw);
+        if (numeric && numeric > 20000) {
+          return new Date((numeric - 25569) * 86400 * 1000);
+        }
+        const parsed = new Date(raw);
+        if (!Number.isNaN(parsed.getTime())) return parsed;
+
+        const match = raw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+        if (match) {
+          const month = Number(match[1]) - 1;
+          const day = Number(match[2]);
+          const year = Number(match[3].length === 2 ? `20${match[3]}` : match[3]);
+          return new Date(year, month, day);
+        }
+        return null;
+      }
+
+      function parseTimeParts(value) {
+        if (!value) return null;
+        const match = value
+          .toString()
+          .trim()
+          .match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+        if (!match) return null;
+        let hours = Number(match[1]);
+        const minutes = Number(match[2]);
+        const seconds = Number(match[3] || 0);
+        const meridian = match[4];
+        if (meridian) {
+          const upper = meridian.toUpperCase();
+          if (upper === "PM" && hours < 12) hours += 12;
+          if (upper === "AM" && hours === 12) hours = 0;
+        }
+        return { hours, minutes, seconds };
+      }
+
+      function combineDateTime(dateValue, timeValue) {
+        const date = parseSheetDate(dateValue);
+        if (!date) return null;
+        const time = parseTimeParts(timeValue);
+        if (!time) return date;
+        date.setHours(time.hours, time.minutes, time.seconds, 0);
+        return date;
+      }
+
+      function formatShortDate(date) {
+        if (!date) return "--";
+        return new Intl.DateTimeFormat("en-US", {
+          month: "short",
+          day: "numeric",
+        }).format(date);
+      }
+
+      function formatFullDate(date) {
+        if (!date) return "--";
+        return new Intl.DateTimeFormat("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }).format(date);
+      }
+
+      function formatHours(hours) {
+        if (hours === null || Number.isNaN(hours)) return "--";
+        const totalMinutes = Math.round(hours * 60);
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return `${h}h ${m}m`;
+      }
+
+      function formatDelta(delta) {
+        if (delta === null || Number.isNaN(delta)) return "--";
+        const sign = delta >= 0 ? "+" : "-";
+        return `${sign}${formatHours(Math.abs(delta))}`;
+      }
+
+      function destroyCharts() {
+        Object.values(state.charts).forEach((chart) => chart.destroy());
+        state.charts = {};
+      }
+
+      function buildCharts(entries) {
+        destroyCharts();
+        if (!entries.length) return;
+
+        const durations = entries.map((entry) => entry.durationHours);
+        const labels = entries.map((entry) => formatShortDate(entry.endDate || entry.startDate));
+
+        const recentEntries = entries.slice(-12);
+        const recentLabels = recentEntries.map((entry) =>
+          formatShortDate(entry.endDate || entry.startDate)
+        );
+
+        const durationCtx = document.getElementById("durationChart").getContext("2d");
+        const gradient = durationCtx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, "rgba(30, 164, 155, 0.5)");
+        gradient.addColorStop(1, "rgba(30, 164, 155, 0.05)");
+
+        state.charts.duration = new Chart(durationCtx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Duration (hours)",
+                data: durations,
+                borderColor: "#0d6d6b",
+                backgroundColor: gradient,
+                borderWidth: 2,
+                tension: 0.35,
+                pointRadius: 3,
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `${formatHours(context.raw)}`,
+                },
+              },
+            },
+            scales: {
+              y: {
+                ticks: {
+                  callback: (value) => `${value}h`,
+                },
+                grid: { color: "rgba(14,27,31,0.06)" },
+              },
+              x: {
+                grid: { display: false },
+              },
+            },
+          },
+        });
+
+        const goalCtx = document.getElementById("goalChart").getContext("2d");
+        state.charts.goal = new Chart(goalCtx, {
+          type: "bar",
+          data: {
+            labels: recentLabels,
+            datasets: [
+              {
+                label: "Duration",
+                data: recentEntries.map((entry) => entry.durationHours),
+                backgroundColor: "rgba(13, 109, 107, 0.75)",
+                borderRadius: 10,
+              },
+              {
+                label: "Goal",
+                data: recentEntries.map((entry) => entry.goalHours ?? null),
+                backgroundColor: "rgba(244, 159, 63, 0.75)",
+                borderRadius: 10,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom" },
+              tooltip: {
+                callbacks: {
+                  label: (context) =>
+                    `${context.dataset.label}: ${formatHours(context.raw)}`,
+                },
+              },
+            },
+            scales: {
+              y: {
+                ticks: {
+                  callback: (value) => `${value}h`,
+                },
+                grid: { color: "rgba(14,27,31,0.06)" },
+              },
+              x: {
+                grid: { display: false },
+              },
+            },
+          },
+        });
+
+        const distribution = [0, 12, 16, 20, 24, 36, 48];
+        const buckets = distribution.map(() => 0);
+
+        entries.forEach((entry) => {
+          const hours = entry.durationHours;
+          let index = distribution.findIndex((limit) => hours < limit);
+          if (index === -1) index = distribution.length - 1;
+          buckets[index] += 1;
+        });
+
+        const bucketLabels = [
+          "<12h",
+          "12-16h",
+          "16-20h",
+          "20-24h",
+          "24-36h",
+          "36-48h",
+          "48h+",
+        ];
+
+        const distCtx = document.getElementById("distributionChart").getContext("2d");
+        state.charts.distribution = new Chart(distCtx, {
+          type: "doughnut",
+          data: {
+            labels: bucketLabels,
+            datasets: [
+              {
+                data: buckets,
+                backgroundColor: [
+                  "#ffd59e",
+                  "#ffc18a",
+                  "#f4a66b",
+                  "#e68064",
+                  "#b5e2d7",
+                  "#7cd4c2",
+                  "#3aa8a1",
+                ],
+                borderWidth: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom" },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `${context.label}: ${context.raw} fasts`,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function buildInsights(entries) {
+        if (!entries.length) return;
+
+        const totalHours = entries.reduce((sum, entry) => sum + entry.durationHours, 0);
+        const average = totalHours / entries.length;
+        const longest = Math.max(...entries.map((entry) => entry.durationHours));
+
+        const goals = entries.filter((entry) => entry.goalHours !== null);
+        const goalHits = goals.filter((entry) => entry.durationHours >= entry.goalHours);
+        const goalRate = goals.length ? (goalHits.length / goals.length) * 100 : null;
+
+        const rolling = entries.slice(-7);
+        const rollingAvg =
+          rolling.length > 0
+            ? rolling.reduce((sum, entry) => sum + entry.durationHours, 0) / rolling.length
+            : null;
+
+        const recent = entries[entries.length - 1];
+
+        document.getElementById("statTotal").textContent = entries.length.toString();
+        document.getElementById("statAverage").textContent = formatHours(average);
+        document.getElementById("statLongest").textContent = formatHours(longest);
+        document.getElementById("statGoalRate").textContent = goalRate
+          ? `${Math.round(goalRate)}%`
+          : "--";
+        document.getElementById("statRolling").textContent = formatHours(rollingAvg);
+        document.getElementById("statConsistency").textContent = goals.length
+          ? `${goalHits.length}/${goals.length} goals`
+          : "--";
+        document.getElementById("statTotalHours").textContent = formatHours(totalHours);
+        document.getElementById("statRecent").textContent = recent
+          ? `${formatShortDate(recent.endDate || recent.startDate)} · ${formatHours(
+              recent.durationHours
+            )}`
+          : "--";
+
+        document.getElementById("lastUpdated").textContent = formatFullDate(
+          recent.endDate || recent.startDate
+        );
+      }
+
+      function buildRecentTable(entries) {
+        const table = document.getElementById("recentTable");
+        table.innerHTML = "";
+        const recent = entries.slice(-6).reverse();
+        recent.forEach((entry) => {
+          const row = document.createElement("tr");
+          const delta =
+            entry.goalHours !== null ? entry.durationHours - entry.goalHours : null;
+          row.innerHTML = `
+            <td>${formatFullDate(entry.endDate || entry.startDate)}</td>
+            <td>${formatHours(entry.durationHours)}</td>
+            <td>${entry.goalHours !== null ? formatHours(entry.goalHours) : "--"}</td>
+            <td>${delta !== null ? formatDelta(delta) : "--"}</td>
+          `;
+          table.appendChild(row);
+        });
+      }
+
+      async function fetchSheetCsv() {
+        const urls = [
+          `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(
+            SHEET_NAME
+          )}`,
+          `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`,
+        ];
+
+        for (const url of urls) {
+          try {
+            const response = await fetch(url, { cache: "no-store" });
+            if (!response.ok) continue;
+            const text = await response.text();
+            if (text && text.includes(",")) return text;
+          } catch (error) {
+            console.warn("Sheet fetch failed", error);
+          }
+        }
+        throw new Error("Unable to load sheet data.");
+      }
+
+      function normalizeEntries(rows) {
+        if (!rows.length) return [];
+        const headers = rows[0].map((header) => header.trim());
+        const dataRows = rows.slice(1).filter((row) =>
+          row.some((cell) => cell && cell.toString().trim())
+        );
+
+        const entries = dataRows.map((row) => {
+          const record = {};
+          headers.forEach((header, index) => {
+            record[header] = row[index] ?? "";
+          });
+
+          const startDate =
+            parseSheetDate(record["Fast Start D+T"]) ||
+            combineDateTime(record["Fast Start Date"], record["Fast Start Time"]);
+          const endDate =
+            parseSheetDate(record["Fast End D+T"]) ||
+            combineDateTime(record["Fast End Date"], record["Fast End"]);
+          const durationHours =
+            parseDurationToHours(record["Duration"]) ||
+            (startDate && endDate ? (endDate - startDate) / 36e5 : null);
+          const goalHours = parseDurationToHours(record["New Fasting Goal"]);
+
+          return {
+            startDate,
+            endDate,
+            durationHours,
+            goalHours,
+          };
+        });
+
+        return entries
+          .filter((entry) => entry.durationHours !== null && !Number.isNaN(entry.durationHours))
+          .sort((a, b) => {
+            const aTime = (a.endDate || a.startDate || new Date(0)).getTime();
+            const bTime = (b.endDate || b.startDate || new Date(0)).getTime();
+            return aTime - bTime;
+          });
+      }
+
+      async function loadDashboard() {
+        setStatus("Loading data...");
+        try {
+          const csv = await fetchSheetCsv();
+          const rows = csvToRows(csv);
+          const entries = normalizeEntries(rows);
+
+          if (!entries.length) {
+            setStatus("No data found in the sheet.");
+            return;
+          }
+
+          buildCharts(entries);
+          buildInsights(entries);
+          buildRecentTable(entries);
+          setStatus("Live data loaded.");
+        } catch (error) {
+          console.error(error);
+          setStatus("Unable to fetch sheet data.");
+        }
+      }
+
+      refreshBtn.addEventListener("click", () => loadDashboard());
+      loadDashboard();
+    </script>
+  </body>
+</html>
