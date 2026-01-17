@@ -381,9 +381,19 @@
         grid-column: span 4;
       }
 
+      .card-full {
+        grid-column: span 12;
+      }
+
       .insights {
         display: grid;
         gap: 10px;
+      }
+
+      .streak-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
       }
 
       .insight {
@@ -423,6 +433,64 @@
         color: var(--ink-soft);
       }
 
+      .heatmap {
+        display: grid;
+        grid-template-columns: repeat(14, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .heatmap-cell {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 6px;
+        background: rgba(13, 109, 107, 0.1);
+        transition: transform 0.2s ease;
+      }
+
+      .heatmap-cell:hover {
+        transform: scale(1.08);
+      }
+
+      .heat-0 {
+        background: rgba(13, 109, 107, 0.08);
+      }
+
+      .heat-1 {
+        background: rgba(13, 109, 107, 0.28);
+      }
+
+      .heat-2 {
+        background: rgba(30, 164, 155, 0.45);
+      }
+
+      .heat-3 {
+        background: rgba(30, 164, 155, 0.7);
+      }
+
+      .heat-4 {
+        background: #0d6d6b;
+      }
+
+      .heatmap-legend {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        color: var(--ink-soft);
+      }
+
+      .heatmap-swatch {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .heatmap-swatch .heatmap-cell {
+        width: 14px;
+        height: 14px;
+        aspect-ratio: auto;
+      }
+
       footer {
         margin-top: 36px;
         color: var(--ink-soft);
@@ -444,10 +512,10 @@
 
         .card-wide,
         .card-mid,
-        .card-half {
+        .card-half,
+        .card-full {
           grid-column: span 6;
         }
-
       }
 
       @media (max-width: 640px) {
@@ -461,10 +529,10 @@
 
         .card-wide,
         .card-mid,
-        .card-half {
+        .card-half,
+        .card-full {
           grid-column: span 1;
         }
-
       }
     </style>
   </head>
@@ -559,7 +627,30 @@
           </div>
         </section>
 
-        <section class="card card-half" style="--delay: 0.25s">
+        <section class="card card-half" style="--delay: 0.22s">
+          <h3>Streaks + Consistency</h3>
+          <p>How consistent your fasting days have been.</p>
+          <div class="streak-grid">
+            <div class="stat-card">
+              <span>Current Streak</span>
+              <strong id="statStreakCurrent">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>Longest Streak</span>
+              <strong id="statStreakLongest">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>30-Day Consistency</span>
+              <strong id="statConsistency30">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>Days Since Last Fast</span>
+              <strong id="statDaysSince">--</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card card-half" style="--delay: 0.24s">
           <h3>Momentum</h3>
           <p>Rolling averages and consistency highlights.</p>
           <div class="insights">
@@ -578,7 +669,32 @@
           </div>
         </section>
 
-        <section class="card card-wide" style="--delay: 0.3s">
+        <section class="card card-mid" style="--delay: 0.26s">
+          <h3>Time of Day Patterns</h3>
+          <p>When your fasts tend to start and end.</p>
+          <div class="chart">
+            <canvas id="timeChart"></canvas>
+          </div>
+        </section>
+
+        <section class="card card-wide" style="--delay: 0.28s">
+          <h3>Calendar Heatmap</h3>
+          <p>Last 14 weeks of fasting volume.</p>
+          <div class="heatmap" id="heatmapGrid"></div>
+          <div class="heatmap-legend">
+            <span>Less</span>
+            <div class="heatmap-swatch">
+              <span class="heatmap-cell heat-0"></span>
+              <span class="heatmap-cell heat-1"></span>
+              <span class="heatmap-cell heat-2"></span>
+              <span class="heatmap-cell heat-3"></span>
+              <span class="heatmap-cell heat-4"></span>
+            </div>
+            <span>More</span>
+          </div>
+        </section>
+
+        <section class="card card-full" style="--delay: 0.3s">
           <h3>Recent Fasts</h3>
           <p>Latest entries from your sheet.</p>
           <div style="overflow-x: auto">
@@ -765,6 +881,24 @@
         return `${sign}${formatHours(Math.abs(delta))}`;
       }
 
+      function toDay(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      }
+
+      function formatHourLabel(hour) {
+        const period = hour < 12 ? "a" : "p";
+        const normalized = hour % 12 || 12;
+        return `${normalized}${period}`;
+      }
+
+      function getHeatLevel(hours) {
+        if (hours >= 20) return 4;
+        if (hours >= 16) return 3;
+        if (hours >= 12) return 2;
+        if (hours > 0) return 1;
+        return 0;
+      }
+
       function destroyCharts() {
         Object.values(state.charts).forEach((chart) => chart.destroy());
         state.charts = {};
@@ -929,6 +1063,166 @@
             },
           },
         });
+      }
+
+      function buildTimePatterns(entries) {
+        if (!entries.length) return;
+        const startCounts = Array(24).fill(0);
+        const endCounts = Array(24).fill(0);
+
+        entries.forEach((entry) => {
+          if (entry.startDate) startCounts[entry.startDate.getHours()] += 1;
+          if (entry.endDate) endCounts[entry.endDate.getHours()] += 1;
+        });
+
+        const labels = startCounts.map((_, hour) => formatHourLabel(hour));
+        const timeCtx = document.getElementById("timeChart").getContext("2d");
+
+        state.charts.time = new Chart(timeCtx, {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Starts",
+                data: startCounts,
+                backgroundColor: "rgba(13, 109, 107, 0.7)",
+                borderRadius: 8,
+              },
+              {
+                label: "Ends",
+                data: endCounts,
+                backgroundColor: "rgba(244, 159, 63, 0.7)",
+                borderRadius: 8,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom" },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `${context.dataset.label}: ${context.raw}`,
+                },
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { precision: 0 },
+                grid: { color: "rgba(14,27,31,0.06)" },
+              },
+              x: {
+                grid: { display: false },
+              },
+            },
+          },
+        });
+      }
+
+      function buildStreaks(entries) {
+        const currentEl = document.getElementById("statStreakCurrent");
+        const longestEl = document.getElementById("statStreakLongest");
+        const consistencyEl = document.getElementById("statConsistency30");
+        const sinceEl = document.getElementById("statDaysSince");
+
+        if (!currentEl || !longestEl || !consistencyEl || !sinceEl) return;
+        if (!entries.length) {
+          currentEl.textContent = "--";
+          longestEl.textContent = "--";
+          consistencyEl.textContent = "--";
+          sinceEl.textContent = "--";
+          return;
+        }
+
+        const dayTotals = new Map();
+        entries.forEach((entry) => {
+          const baseDate = entry.endDate || entry.startDate;
+          if (!baseDate) return;
+          const dayMs = toDay(baseDate).getTime();
+          const previous = dayTotals.get(dayMs) || 0;
+          dayTotals.set(dayMs, previous + (entry.durationHours || 0));
+        });
+
+        const days = Array.from(dayTotals.keys()).sort((a, b) => a - b);
+        if (!days.length) return;
+
+        let longest = 0;
+        let rolling = 0;
+        let prev = null;
+        days.forEach((dayMs) => {
+          if (prev !== null && dayMs - prev === 86400000) {
+            rolling += 1;
+          } else {
+            rolling = 1;
+          }
+          if (rolling > longest) longest = rolling;
+          prev = dayMs;
+        });
+
+        let currentStreak = 1;
+        for (let i = days.length - 1; i > 0; i -= 1) {
+          if (days[i] - days[i - 1] === 86400000) {
+            currentStreak += 1;
+          } else {
+            break;
+          }
+        }
+
+        const nowDay = toDay(new Date()).getTime();
+        const lastDay = days[days.length - 1];
+        const anchorDay = lastDay > nowDay ? lastDay : nowDay;
+        const daysSince = Math.max(0, Math.round((anchorDay - lastDay) / 86400000));
+
+        const windowStart = anchorDay - 29 * 86400000;
+        const daysInWindow = days.filter(
+          (dayMs) => dayMs >= windowStart && dayMs <= anchorDay
+        ).length;
+        const consistency = Math.round((daysInWindow / 30) * 100);
+
+        currentEl.textContent = `${currentStreak} day${currentStreak === 1 ? "" : "s"}`;
+        longestEl.textContent = `${longest} day${longest === 1 ? "" : "s"}`;
+        consistencyEl.textContent = `${consistency}%`;
+        sinceEl.textContent = `${daysSince} day${daysSince === 1 ? "" : "s"}`;
+      }
+
+      function buildHeatmap(entries) {
+        const container = document.getElementById("heatmapGrid");
+        if (!container) return;
+        container.innerHTML = "";
+        if (!entries.length) return;
+
+        const dayTotals = new Map();
+        entries.forEach((entry) => {
+          const baseDate = entry.endDate || entry.startDate;
+          if (!baseDate) return;
+          const dayMs = toDay(baseDate).getTime();
+          const previous = dayTotals.get(dayMs) || 0;
+          dayTotals.set(dayMs, previous + (entry.durationHours || 0));
+        });
+
+        const days = Array.from(dayTotals.keys());
+        if (!days.length) return;
+        const nowDay = toDay(new Date()).getTime();
+        const lastDay = Math.max(...days);
+        const anchorDay = lastDay > nowDay ? lastDay : nowDay;
+        const totalDays = 98;
+        const startDay = anchorDay - (totalDays - 1) * 86400000;
+
+        for (let i = 0; i < totalDays; i += 1) {
+          const dayMs = startDay + i * 86400000;
+          const hours = dayTotals.get(dayMs) || 0;
+          const level = getHeatLevel(hours);
+          const cell = document.createElement("div");
+          cell.className = `heatmap-cell heat-${level}`;
+          const label = hours
+            ? `${formatFullDate(new Date(dayMs))} · ${formatHours(hours)}`
+            : `${formatFullDate(new Date(dayMs))} · No fast`;
+          cell.title = label;
+          container.appendChild(cell);
+        }
       }
 
       function buildInsights(entries) {
@@ -1123,6 +1417,9 @@
           }
 
           buildCharts(completedEntries);
+          buildTimePatterns(entries);
+          buildStreaks(completedEntries);
+          buildHeatmap(completedEntries);
           buildInsights(completedEntries);
           buildRecentTable(completedEntries);
           updateCurrentFast(currentFast);
