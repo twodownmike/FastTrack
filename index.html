@@ -104,8 +104,9 @@
 
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-        gap: 32px;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+        justify-items: end;
         align-items: center;
         animation: rise 0.8s ease forwards;
       }
@@ -113,8 +114,16 @@
       .site-header {
         display: flex;
         align-items: center;
-        gap: 14px;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
         margin-bottom: 22px;
+      }
+
+      .logo-group {
+        display: flex;
+        align-items: center;
+        gap: 14px;
       }
 
       .logo-mark {
@@ -145,6 +154,22 @@
         text-transform: uppercase;
         letter-spacing: 0.26em;
         color: var(--ink-soft);
+      }
+
+      .header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .header-actions .status {
+        font-size: 0.85rem;
+      }
+
+      .header-actions .status:last-child {
+        white-space: nowrap;
       }
 
       .current-fast {
@@ -221,20 +246,6 @@
         }
       }
 
-      h1 {
-        font-family: "Fraunces", serif;
-        font-weight: 600;
-        font-size: clamp(2.2rem, 3vw, 3.5rem);
-        margin: 0 0 18px;
-      }
-
-      .hero-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        align-items: center;
-      }
-
       .chip {
         background: rgba(13, 109, 107, 0.12);
         color: var(--accent);
@@ -273,6 +284,7 @@
         box-shadow: var(--shadow);
         display: grid;
         gap: 16px;
+        width: min(100%, 520px);
       }
 
       .hero-panel h2 {
@@ -423,7 +435,7 @@
 
       @media (max-width: 960px) {
         .hero {
-          grid-template-columns: 1fr;
+          justify-items: stretch;
         }
 
         .dashboard {
@@ -434,6 +446,10 @@
         .card-mid,
         .card-half {
           grid-column: span 6;
+        }
+
+        .hero-panel {
+          width: 100%;
         }
       }
 
@@ -452,10 +468,6 @@
           grid-column: span 1;
         }
 
-        .hero-actions {
-          flex-direction: column;
-          align-items: flex-start;
-        }
       }
     </style>
   </head>
@@ -468,10 +480,18 @@
 
     <div class="page">
       <div class="site-header">
-        <div class="logo-mark">FT</div>
-        <div class="logo-text">
-          <strong>FastTrack</strong>
-          <span>Fasting Metrics</span>
+        <div class="logo-group">
+          <div class="logo-mark">FT</div>
+          <div class="logo-text">
+            <strong>FastTrack</strong>
+            <span>Fasting Metrics</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span class="chip">Source: Google Sheets</span>
+          <button class="btn" id="refreshBtn">Refresh Data</button>
+          <span class="status" id="statusText">Ready.</span>
+          <span class="status">Last refresh: <span id="lastUpdated">--</span></span>
         </div>
       </div>
       <section class="current-fast">
@@ -490,14 +510,6 @@
         </div>
       </section>
       <header class="hero">
-        <div>
-          <h1>FastTrack</h1>
-          <div class="hero-actions">
-            <span class="chip">Source: Google Sheets</span>
-            <button class="btn" id="refreshBtn">Refresh Data</button>
-            <span class="status" id="statusText">Ready.</span>
-          </div>
-        </div>
         <div class="hero-panel">
           <h2>Snapshot</h2>
           <div class="stat-grid">
@@ -589,7 +601,6 @@
       </main>
 
       <footer>
-        <div>Last updated: <span id="lastUpdated">--</span></div>
         <div>
           Data pulls from columns A-O in your public Google Sheet. If charts are empty,
           confirm the sheet is shared to "Anyone with the link."
