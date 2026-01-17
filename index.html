@@ -6,137 +6,154 @@
     <title>FastTrack Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
       :root {
         color-scheme: only light;
-        --ink: #0e1b1f;
-        --ink-soft: #2b4249;
-        --paper: #f8f5f0;
+        --ink: #0a0e27;
+        --ink-soft: #475569;
+        --ink-lighter: #94a3b8;
+        --paper: #fafbfc;
         --card: #ffffff;
-        --accent: #0d6d6b;
-        --accent-bright: #1ea49b;
-        --sun: #f49f3f;
-        --rose: #e56a5b;
-        --mint: #c7f1e9;
-        --sky: #d8e9f9;
-        --shadow: 0 18px 55px rgba(14, 27, 31, 0.12);
-        --radius-lg: 26px;
-        --radius-md: 18px;
-        --radius-sm: 12px;
+        --accent: #4f46e5;
+        --accent-bright: #6366f1;
+        --accent-light: #eef2ff;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --radius-2xl: 24px;
       }
 
       * {
         box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
       body {
-        margin: 0;
-        font-family: "Space Grotesk", system-ui, sans-serif;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
         color: var(--ink);
-        background: linear-gradient(120deg, #fff4df 0%, #f1f7ff 38%, #e6fff5 100%);
+        background: var(--paper);
+        background-image: 
+          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.05) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.05) 0px, transparent 50%);
         min-height: 100vh;
         overflow-x: hidden;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
 
-      .ambient {
+      /* Animated background grain */
+      body::before {
+        content: '';
         position: fixed;
-        inset: 0;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.03;
         z-index: 0;
         pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        animation: grain 8s steps(10) infinite;
       }
 
-      .orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(1px);
-        opacity: 0.6;
-        animation: float 18s ease-in-out infinite;
-      }
-
-      .orb.orb-1 {
-        width: 320px;
-        height: 320px;
-        background: radial-gradient(circle at 30% 30%, #fff5d8, #ffd8a8);
-        top: -80px;
-        left: -120px;
-      }
-
-      .orb.orb-2 {
-        width: 260px;
-        height: 260px;
-        background: radial-gradient(circle at 40% 40%, #e0f7ff, #b6e9ff);
-        top: 80px;
-        right: -100px;
-        animation-delay: -4s;
-      }
-
-      .orb.orb-3 {
-        width: 220px;
-        height: 220px;
-        background: radial-gradient(circle at 50% 50%, #e6ffe9, #b8f2d2);
-        bottom: -60px;
-        left: 10%;
-        animation-delay: -9s;
-      }
-
-      @keyframes float {
-        0%,
-        100% {
-          transform: translate3d(0, 0, 0);
-        }
-        50% {
-          transform: translate3d(0, 20px, 0);
-        }
+      @keyframes grain {
+        0%, 100% { transform: translate(0, 0); }
+        10% { transform: translate(-5%, -10%); }
+        20% { transform: translate(-15%, 5%); }
+        30% { transform: translate(7%, -25%); }
+        40% { transform: translate(-5%, 25%); }
+        50% { transform: translate(-15%, 10%); }
+        60% { transform: translate(15%, 0%); }
+        70% { transform: translate(0%, 15%); }
+        80% { transform: translate(3%, 35%); }
+        90% { transform: translate(-10%, 10%); }
       }
 
       .page {
         position: relative;
         z-index: 1;
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
-        padding: 48px 24px 64px;
+        padding: 32px 24px 80px;
+        animation: fadeIn 0.8s ease-out;
       }
 
-      .top-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
-        gap: 22px;
-        align-items: start;
-        margin-bottom: 28px;
-        animation: rise 0.8s ease forwards;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
+      /* Header */
       .site-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 18px;
+        gap: 24px;
         flex-wrap: wrap;
-        margin-bottom: 22px;
+        margin-bottom: 48px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+        animation: slideDown 0.6s ease-out;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .logo-group {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 16px;
       }
 
       .logo-mark {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
+        width: 52px;
+        height: 52px;
+        border-radius: var(--radius-lg);
         display: grid;
         place-items: center;
         font-weight: 700;
+        font-size: 1.25rem;
         color: #fff;
-        background: linear-gradient(135deg, #0d6d6b, #1ea49b);
-        box-shadow: 0 10px 20px rgba(13, 109, 107, 0.25);
-        letter-spacing: 0.08em;
+        background: var(--gradient-1);
+        box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        letter-spacing: 0.05em;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .logo-mark:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
       }
 
       .logo-text {
@@ -145,200 +162,96 @@
       }
 
       .logo-text strong {
-        font-family: "Fraunces", serif;
-        font-size: 1.4rem;
+        font-family: "Playfair Display", serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       .logo-text span {
         font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.26em;
-        color: var(--ink-soft);
+        letter-spacing: 0.15em;
+        color: var(--ink-lighter);
+        font-weight: 600;
       }
 
       .header-actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px 14px;
+        gap: 12px;
         align-items: center;
-        justify-content: flex-end;
       }
 
-      .header-actions .status {
-        font-size: 0.85rem;
-      }
-
-      .header-actions .status:last-child {
-        white-space: nowrap;
-      }
-
-      .current-fast {
-        background: linear-gradient(120deg, #fff2d6 0%, #e8fff7 100%);
-        border-radius: var(--radius-lg);
-        padding: 18px 22px;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 16px;
-        box-shadow: 0 12px 28px rgba(14, 27, 31, 0.12);
-      }
-
-      .current-fast h2 {
-        font-family: "Fraunces", serif;
-        margin: 0;
-        font-size: 1.2rem;
-      }
-
-      .current-fast-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        flex: 1;
-        min-width: 220px;
-      }
-
-      .current-fast-meta span {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
+      .status {
+        font-size: 0.875rem;
         color: var(--ink-soft);
-      }
-
-      .current-fast-metrics {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        flex: 1;
-        min-width: 200px;
-      }
-
-      .current-fast-metrics strong {
-        font-size: 1.3rem;
-      }
-
-      .progress {
-        position: relative;
-        width: 100%;
-        height: 12px;
-        border-radius: 999px;
-        background: rgba(13, 109, 107, 0.15);
-        overflow: hidden;
-      }
-
-      .progress span {
-        position: absolute;
-        inset: 0;
-        width: 0%;
-        background: linear-gradient(90deg, #0d6d6b, #1ea49b);
-        border-radius: 999px;
-        transition: width 0.6s ease;
-      }
-
-      @keyframes rise {
-        from {
-          opacity: 0;
-          transform: translateY(12px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        padding: 8px 16px;
+        background: var(--card);
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(148, 163, 184, 0.15);
+        font-weight: 500;
       }
 
       .chip {
-        background: rgba(13, 109, 107, 0.12);
+        background: var(--accent-light);
         color: var(--accent);
-        padding: 8px 14px;
-        border-radius: 999px;
-        font-size: 0.85rem;
+        padding: 8px 16px;
+        border-radius: var(--radius-md);
+        font-size: 0.875rem;
         font-weight: 600;
+        border: 1px solid rgba(79, 70, 229, 0.15);
+        transition: all 0.2s ease;
+      }
+
+      .chip:hover {
+        background: var(--accent);
+        color: white;
+        transform: translateY(-1px);
       }
 
       .btn {
         border: none;
         background: var(--accent);
         color: #fff;
-        padding: 12px 18px;
-        border-radius: 999px;
+        padding: 10px 20px;
+        border-radius: var(--radius-md);
         font-weight: 600;
+        font-size: 0.875rem;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        box-shadow: 0 10px 18px rgba(13, 109, 107, 0.2);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 14px 24px rgba(13, 109, 107, 0.28);
+        background: var(--accent-bright);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
       }
 
-      .status {
-        font-size: 0.9rem;
-        color: var(--ink-soft);
+      .btn:active {
+        transform: translateY(0);
       }
 
-      .hero-panel {
-        background: var(--card);
-        border-radius: var(--radius-lg);
-        padding: 24px;
-        box-shadow: var(--shadow);
+      /* Top Grid */
+      .top-grid {
         display: grid;
-        gap: 16px;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 24px;
+        align-items: start;
+        margin-bottom: 32px;
+        animation: fadeInUp 0.8s ease-out 0.1s backwards;
       }
 
-      .hero-panel h2 {
-        font-family: "Fraunces", serif;
-        margin: 0;
-        font-size: 1.3rem;
-      }
-
-      .stat-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 12px;
-      }
-
-      .stat-card {
-        background: var(--paper);
-        border-radius: var(--radius-md);
-        padding: 14px 16px;
-        display: grid;
-        gap: 6px;
-      }
-
-      .stat-card span {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--ink-soft);
-      }
-
-      .stat-card strong {
-        font-size: 1.2rem;
-      }
-
-      .dashboard {
-        margin-top: 42px;
-        display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 20px;
-      }
-
-      .card {
-        background: var(--card);
-        border-radius: var(--radius-lg);
-        padding: 22px;
-        box-shadow: var(--shadow);
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        animation: fadeUp 0.7s ease both;
-        animation-delay: var(--delay, 0s);
-      }
-
-      @keyframes fadeUp {
+      @keyframes fadeInUp {
         from {
           opacity: 0;
-          transform: translateY(14px);
+          transform: translateY(30px);
         }
         to {
           opacity: 1;
@@ -346,504 +259,628 @@
         }
       }
 
-      .card h3 {
-        margin: 0;
-        font-size: 1.1rem;
-      }
-
-      .card p {
-        margin: 0;
-        color: var(--ink-soft);
-      }
-
-      .chart {
+      /* Current Fast Card */
+      .current-fast {
+        background: var(--card);
+        border-radius: var(--radius-2xl);
+        padding: 32px;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid rgba(148, 163, 184, 0.1);
         position: relative;
-        height: 260px;
-        width: 100%;
+        overflow: hidden;
+        transition: all 0.3s ease;
       }
 
-      .chart canvas {
-        width: 100%;
-        height: 100%;
+      .current-fast::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-1);
       }
 
-      .card-wide {
-        grid-column: span 7;
+      .current-fast:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-2xl);
       }
 
-      .card-mid {
-        grid-column: span 5;
+      .current-fast h2 {
+        font-family: "Playfair Display", serif;
+        margin: 0 0 24px 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
       }
 
-      .card-half {
-        grid-column: span 4;
-      }
-
-      .insights {
+      .current-fast-content {
         display: grid;
-        gap: 10px;
+        gap: 24px;
       }
 
-      .insight {
-        background: linear-gradient(120deg, #fff2d6, #f2fff9);
-        border-radius: var(--radius-md);
-        padding: 12px 14px;
+      .current-fast-meta {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 500;
+        flex-direction: column;
+        gap: 8px;
       }
 
-      .insight span {
-        color: var(--ink-soft);
-        font-size: 0.85rem;
+      .current-fast-meta span {
+        font-size: 0.8125rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-lighter);
+        font-weight: 600;
+      }
+
+      .current-fast-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .metric-box {
+        background: linear-gradient(135deg, var(--paper) 0%, rgba(249, 250, 251, 0.5) 100%);
+        padding: 16px;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+      }
+
+      .metric-label {
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        color: var(--ink-lighter);
+        font-weight: 600;
+        margin-bottom: 4px;
       }
 
-      .recent-table {
+      .metric-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        background: var(--gradient-1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-family: "Playfair Display", serif;
+      }
+
+      .progress {
+        position: relative;
         width: 100%;
-        border-collapse: collapse;
-        font-size: 0.92rem;
+        height: 10px;
+        border-radius: var(--radius-md);
+        background: rgba(79, 70, 229, 0.1);
+        overflow: hidden;
+        margin-top: 12px;
       }
 
-      .recent-table th,
-      .recent-table td {
-        text-align: left;
-        padding: 8px 6px;
-        border-bottom: 1px solid rgba(14, 27, 31, 0.08);
+      .progress span {
+        position: absolute;
+        inset: 0;
+        width: 0%;
+        background: var(--gradient-1);
+        border-radius: var(--radius-md);
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
       }
 
-      .recent-table th {
-        font-size: 0.7rem;
+      /* Stats Grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .stat-card {
+        background: var(--card);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: var(--gradient-1);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .stat-card:hover::before {
+        opacity: 1;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.16em;
+        letter-spacing: 0.08em;
+        color: var(--ink-lighter);
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--ink);
+        font-family: "Playfair Display", serif;
+      }
+
+      /* Bottom Grid */
+      .bottom-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+        animation: fadeInUp 0.8s ease-out 0.2s backwards;
+      }
+
+      /* Chart Cards */
+      .card {
+        background: var(--card);
+        border-radius: var(--radius-2xl);
+        padding: 32px;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: var(--shadow-2xl);
+      }
+
+      .card h3 {
+        font-family: "Playfair Display", serif;
+        margin: 0 0 24px 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+      }
+
+      .chart-container {
+        position: relative;
+        height: 280px;
+      }
+
+      /* Table */
+      .table-card {
+        grid-column: 1 / -1;
+        animation: fadeInUp 0.8s ease-out 0.3s backwards;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+
+      thead tr {
+        background: linear-gradient(135deg, var(--paper) 0%, rgba(249, 250, 251, 0.5) 100%);
+      }
+
+      th {
+        text-align: left;
+        padding: 16px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-lighter);
+        font-weight: 700;
+        border-bottom: 2px solid rgba(148, 163, 184, 0.15);
+      }
+
+      th:first-child {
+        border-top-left-radius: var(--radius-lg);
+      }
+
+      th:last-child {
+        border-top-right-radius: var(--radius-lg);
+      }
+
+      td {
+        padding: 16px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+        font-size: 0.9375rem;
         color: var(--ink-soft);
       }
 
-      footer {
-        margin-top: 36px;
-        color: var(--ink-soft);
-        font-size: 0.85rem;
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 10px;
+      tbody tr {
+        transition: all 0.2s ease;
       }
 
-      @media (max-width: 960px) {
-        .top-grid {
+      tbody tr:hover {
+        background: rgba(79, 70, 229, 0.03);
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      tbody tr:last-child td:first-child {
+        border-bottom-left-radius: var(--radius-lg);
+      }
+
+      tbody tr:last-child td:last-child {
+        border-bottom-right-radius: var(--radius-lg);
+      }
+
+      /* Footer */
+      .page-footer {
+        text-align: center;
+        padding: 24px;
+        color: var(--ink-lighter);
+        font-size: 0.875rem;
+        animation: fadeIn 1s ease-out 0.5s backwards;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .top-grid,
+        .bottom-grid {
           grid-template-columns: 1fr;
         }
 
-        .dashboard {
-          grid-template-columns: repeat(6, minmax(0, 1fr));
+        .stats-grid {
+          grid-template-columns: 1fr;
         }
 
-        .card-wide,
-        .card-mid,
-        .card-half {
-          grid-column: span 6;
+        .current-fast-metrics {
+          grid-template-columns: 1fr;
         }
-
       }
 
       @media (max-width: 640px) {
         .page {
-          padding: 32px 18px 48px;
+          padding: 24px 16px 64px;
         }
 
-        .dashboard {
-          grid-template-columns: repeat(1, minmax(0, 1fr));
+        .site-header {
+          flex-direction: column;
+          align-items: flex-start;
         }
 
-        .card-wide,
-        .card-mid,
-        .card-half {
-          grid-column: span 1;
+        .header-actions {
+          width: 100%;
+          justify-content: space-between;
         }
 
+        .logo-text strong {
+          font-size: 1.5rem;
+        }
+
+        .current-fast,
+        .card {
+          padding: 24px;
+        }
+
+        .chart-container {
+          height: 240px;
+        }
+      }
+
+      /* Loading state */
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .loading {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Selection */
+      ::selection {
+        background: rgba(79, 70, 229, 0.2);
+        color: var(--ink);
       }
     </style>
   </head>
   <body>
-    <div class="ambient">
-      <span class="orb orb-1"></span>
-      <span class="orb orb-2"></span>
-      <span class="orb orb-3"></span>
-    </div>
-
     <div class="page">
-      <div class="site-header">
+      <header class="site-header">
         <div class="logo-group">
           <div class="logo-mark">FT</div>
           <div class="logo-text">
             <strong>FastTrack</strong>
-            <span>Fasting Metrics</span>
+            <span>Analytics</span>
           </div>
         </div>
         <div class="header-actions">
-          <span class="chip">Source: Google Sheets</span>
+          <div class="status" id="statusText">Initializing...</div>
+          <div class="chip">Live Dashboard</div>
           <button class="btn" id="refreshBtn">Refresh Data</button>
-          <span class="status" id="statusText">Ready.</span>
-          <span class="status">Last refresh: <span id="lastUpdated">--</span></span>
         </div>
-      </div>
-      <section class="top-grid">
+      </header>
+
+      <div class="top-grid">
         <div class="current-fast">
-          <div class="current-fast-meta">
-            <span>Current Fast</span>
-            <h2 id="currentFastTitle">No active fast</h2>
-            <div class="status" id="currentFastStart">--</div>
-          </div>
-          <div class="current-fast-metrics">
-            <strong id="currentFastElapsed">--</strong>
-            <div class="status" id="currentFastGoal">Goal: --</div>
-            <div class="status" id="currentFastDelta">--</div>
+          <h2 id="currentFastTitle">Fast in progress</h2>
+          <div class="current-fast-content">
+            <div class="current-fast-meta">
+              <span id="currentFastStart">Started recently</span>
+            </div>
+            <div class="current-fast-metrics">
+              <div class="metric-box">
+                <div class="metric-label">Elapsed</div>
+                <div class="metric-value" id="currentFastElapsed">--</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label" id="currentFastGoal">Goal: --</div>
+                <div class="metric-value" id="currentFastDelta">--</div>
+              </div>
+            </div>
             <div class="progress">
               <span id="currentFastProgress"></span>
             </div>
           </div>
         </div>
-        <div class="hero-panel">
-          <h2>Snapshot</h2>
-          <div class="stat-grid">
-            <div class="stat-card">
-              <span>Total Fasts</span>
-              <strong id="statTotal">--</strong>
-            </div>
-            <div class="stat-card">
-              <span>Average Duration</span>
-              <strong id="statAverage">--</strong>
-            </div>
-            <div class="stat-card">
-              <span>Longest Fast</span>
-              <strong id="statLongest">--</strong>
-            </div>
-            <div class="stat-card">
-              <span>Goal Hit Rate</span>
-              <strong id="statGoalRate">--</strong>
-            </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Total Fasts</span>
+            <div class="stat-value" id="statTotal">--</div>
           </div>
-          <div class="stat-card" style="background: #fff4e6">
-            <span>Most Recent Fast</span>
-            <strong id="statRecent">--</strong>
+          <div class="stat-card">
+            <span class="stat-label">Average Duration</span>
+            <div class="stat-value" id="statAverage">--</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Longest Fast</span>
+            <div class="stat-value" id="statLongest">--</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Goal Success</span>
+            <div class="stat-value" id="statGoalRate">--</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">7-Day Average</span>
+            <div class="stat-value" id="statRolling">--</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Total Hours</span>
+            <div class="stat-value" id="statTotalHours">--</div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <main class="dashboard">
-        <section class="card card-wide" style="--delay: 0.1s">
-          <h3>Duration Over Time</h3>
-          <p>Track every completed fast from start to finish.</p>
-          <div class="chart">
-            <canvas id="durationChart"></canvas>
+      <div class="bottom-grid">
+        <div class="card">
+          <h3>Progress Timeline</h3>
+          <div class="chart-container">
+            <canvas id="progressChart"></canvas>
           </div>
-        </section>
+        </div>
 
-        <section class="card card-mid" style="--delay: 0.15s">
-          <h3>Goal vs. Actual</h3>
-          <p>How close each fast came to your stated goal.</p>
-          <div class="chart">
-            <canvas id="goalChart"></canvas>
-          </div>
-        </section>
-
-        <section class="card card-half" style="--delay: 0.2s">
-          <h3>Duration Mix</h3>
-          <p>Distribution of fast lengths.</p>
-          <div class="chart">
+        <div class="card">
+          <h3>Duration Distribution</h3>
+          <div class="chart-container">
             <canvas id="distributionChart"></canvas>
           </div>
-        </section>
-
-        <section class="card card-half" style="--delay: 0.25s">
-          <h3>Momentum</h3>
-          <p>Rolling averages and consistency highlights.</p>
-          <div class="insights">
-            <div class="insight">
-              <span>Rolling 7 Avg</span>
-              <strong id="statRolling">--</strong>
-            </div>
-            <div class="insight">
-              <span>Consistency</span>
-              <strong id="statConsistency">--</strong>
-            </div>
-            <div class="insight">
-              <span>Total Hours</span>
-              <strong id="statTotalHours">--</strong>
-            </div>
-          </div>
-        </section>
-
-        <section class="card card-wide" style="--delay: 0.3s">
-          <h3>Recent Fasts</h3>
-          <p>Latest entries from your sheet.</p>
-          <div style="overflow-x: auto">
-            <table class="recent-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Duration</th>
-                  <th>Goal</th>
-                  <th>Delta</th>
-                </tr>
-              </thead>
-              <tbody id="recentTable"></tbody>
-            </table>
-          </div>
-        </section>
-      </main>
-
-      <footer>
-        <div>
-          Data pulls from columns A-O in your public Google Sheet. If charts are empty,
-          confirm the sheet is shared to "Anyone with the link."
         </div>
+      </div>
+
+      <div class="card table-card">
+        <h3>Recent Activity</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Date Completed</th>
+              <th>Duration</th>
+              <th>Goal</th>
+              <th>vs Goal</th>
+            </tr>
+          </thead>
+          <tbody id="recentTable">
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 32px; color: var(--ink-lighter);">
+                Loading data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="page-footer">
+        <p>Last updated: <span id="lastUpdated">--</span></p>
       </footer>
     </div>
 
     <script>
-      const SHEET_ID = "1AgRJFJfRu6lz_73qK8KNytFWQv9HrwwZnr5aeQfcy0M";
-      const SHEET_NAME = "Form Responses 2";
-      const state = { charts: {} };
+      const SHEET_ID = "1XpNZRXhYQyuFvawL90dMoIbEE2x9Y5gB-M49OV9iy4Q";
+      const SHEET_NAME = "Sheet1";
 
-      const statusText = document.getElementById("statusText");
       const refreshBtn = document.getElementById("refreshBtn");
+      const state = {
+        charts: {
+          progress: null,
+          distribution: null,
+        },
+      };
 
       function setStatus(message) {
-        statusText.textContent = message;
+        document.getElementById("statusText").textContent = message;
       }
 
       function csvToRows(csv) {
         const rows = [];
-        let row = [];
-        let current = "";
-        let inQuotes = false;
+        let currentRow = [];
+        let currentCell = "";
+        let insideQuotes = false;
 
-        for (let i = 0; i < csv.length; i += 1) {
+        for (let i = 0; i < csv.length; i++) {
           const char = csv[i];
-          if (inQuotes) {
-            if (char === '"') {
-              if (csv[i + 1] === '"') {
-                current += '"';
-                i += 1;
-              } else {
-                inQuotes = false;
-              }
+          const nextChar = csv[i + 1];
+
+          if (char === '"') {
+            if (insideQuotes && nextChar === '"') {
+              currentCell += '"';
+              i++;
             } else {
-              current += char;
+              insideQuotes = !insideQuotes;
             }
-          } else if (char === '"') {
-            inQuotes = true;
-          } else if (char === ",") {
-            row.push(current);
-            current = "";
-          } else if (char === "\n") {
-            row.push(current);
-            rows.push(row);
-            row = [];
-            current = "";
-          } else if (char !== "\r") {
-            current += char;
+          } else if (char === "," && !insideQuotes) {
+            currentRow.push(currentCell);
+            currentCell = "";
+          } else if (char === "\n" && !insideQuotes) {
+            currentRow.push(currentCell);
+            rows.push(currentRow);
+            currentRow = [];
+            currentCell = "";
+            if (nextChar === "\r") i++;
+          } else if (char === "\r" && nextChar === "\n" && !insideQuotes) {
+            currentRow.push(currentCell);
+            rows.push(currentRow);
+            currentRow = [];
+            currentCell = "";
+            i++;
+          } else {
+            currentCell += char;
           }
         }
 
-        if (current.length || row.length) {
-          row.push(current);
-          rows.push(row);
-        }
-        return rows;
-      }
-
-      function parseNumber(value) {
-        if (value === null || value === undefined) return null;
-        const cleaned = value.toString().trim();
-        if (!cleaned) return null;
-        const num = Number(cleaned);
-        return Number.isFinite(num) ? num : null;
-      }
-
-      function parseDurationToHours(value) {
-        if (!value) return null;
-        const raw = value.toString().trim();
-        if (!raw) return null;
-        if (raw.includes(":")) {
-          const parts = raw.split(":").map((item) => Number(item));
-          if (parts.some((part) => Number.isNaN(part))) return null;
-          const hours = parts[0] || 0;
-          const minutes = parts[1] || 0;
-          const seconds = parts[2] || 0;
-          return hours + minutes / 60 + seconds / 3600;
+        if (currentCell || currentRow.length > 0) {
+          currentRow.push(currentCell);
+          rows.push(currentRow);
         }
 
-        const numeric = parseNumber(raw);
-        if (numeric === null) return null;
-        if (numeric <= 1.5) return numeric * 24;
-        return numeric;
+        return rows.filter((row) => row.some((cell) => cell.trim()));
       }
 
-      function parseSheetDate(value) {
-        if (!value) return null;
-        const raw = value.toString().trim();
-        if (!raw) return null;
-        const numeric = parseNumber(raw);
-        if (numeric && numeric > 20000) {
-          return new Date((numeric - 25569) * 86400 * 1000);
-        }
-        const parsed = new Date(raw);
-        if (!Number.isNaN(parsed.getTime())) return parsed;
-
-        const match = raw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-        if (match) {
-          const month = Number(match[1]) - 1;
-          const day = Number(match[2]);
-          const year = Number(match[3].length === 2 ? `20${match[3]}` : match[3]);
-          return new Date(year, month, day);
-        }
-        return null;
+      function parseSheetDate(dateStr) {
+        if (!dateStr || !dateStr.trim()) return null;
+        const parsed = new Date(dateStr.trim());
+        return isNaN(parsed.getTime()) ? null : parsed;
       }
 
-      function parseTimeParts(value) {
-        if (!value) return null;
-        const match = value
-          .toString()
-          .trim()
-          .match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+      function parseSheetTime(timeStr) {
+        if (!timeStr || !timeStr.trim()) return null;
+        const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?$/i);
         if (!match) return null;
-        let hours = Number(match[1]);
-        const minutes = Number(match[2]);
-        const seconds = Number(match[3] || 0);
-        const meridian = match[4];
+        let [, hours, minutes, seconds = "0", meridian] = match;
+        hours = parseInt(hours, 10);
+        minutes = parseInt(minutes, 10);
+        seconds = parseInt(seconds, 10);
         if (meridian) {
-          const upper = meridian.toUpperCase();
-          if (upper === "PM" && hours < 12) hours += 12;
-          if (upper === "AM" && hours === 12) hours = 0;
+          if (meridian.toUpperCase() === "PM" && hours < 12) hours += 12;
+          if (meridian.toUpperCase() === "AM" && hours === 12) hours = 0;
         }
         return { hours, minutes, seconds };
       }
 
-      function combineDateTime(dateValue, timeValue) {
-        const date = parseSheetDate(dateValue);
+      function combineDateTime(dateStr, timeStr) {
+        const date = parseSheetDate(dateStr);
         if (!date) return null;
-        const time = parseTimeParts(timeValue);
+        const time = parseSheetTime(timeStr);
         if (!time) return date;
         date.setHours(time.hours, time.minutes, time.seconds, 0);
         return date;
       }
 
-      function formatShortDate(date) {
-        if (!date) return "--";
-        return new Intl.DateTimeFormat("en-US", {
-          month: "short",
-          day: "numeric",
-        }).format(date);
-      }
-
-      function formatFullDate(date) {
-        if (!date) return "--";
-        return new Intl.DateTimeFormat("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }).format(date);
+      function parseDurationToHours(durationStr) {
+        if (!durationStr || !durationStr.trim()) return null;
+        const match = durationStr.trim().match(/^(\d+):(\d{2})$/);
+        if (!match) return null;
+        const [, hours, minutes] = match;
+        return parseInt(hours, 10) + parseInt(minutes, 10) / 60;
       }
 
       function formatHours(hours) {
-        if (hours === null || Number.isNaN(hours)) return "--";
-        const totalMinutes = Math.round(hours * 60);
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
+        if (hours == null || isNaN(hours)) return "--";
+        const h = Math.floor(hours);
+        const m = Math.round((hours - h) * 60);
         return `${h}h ${m}m`;
       }
 
       function formatDelta(delta) {
-        if (delta === null || Number.isNaN(delta)) return "--";
-        const sign = delta >= 0 ? "+" : "-";
-        return `${sign}${formatHours(Math.abs(delta))}`;
+        const sign = delta >= 0 ? "+" : "";
+        return `${sign}${formatHours(delta)}`;
       }
 
-      function destroyCharts() {
-        Object.values(state.charts).forEach((chart) => chart.destroy());
-        state.charts = {};
+      function formatShortDate(date) {
+        if (!date) return "--";
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${month}/${day}`;
+      }
+
+      function formatFullDate(date) {
+        if (!date) return "--";
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
       }
 
       function buildCharts(entries) {
-        destroyCharts();
         if (!entries.length) return;
 
-        const durations = entries.map((entry) => entry.durationHours);
-        const labels = entries.map((entry) => formatShortDate(entry.endDate || entry.startDate));
+        if (state.charts.progress) state.charts.progress.destroy();
+        if (state.charts.distribution) state.charts.distribution.destroy();
 
-        const recentEntries = entries.slice(-12);
-        const recentLabels = recentEntries.map((entry) =>
-          formatShortDate(entry.endDate || entry.startDate)
-        );
+        const progressData = entries.slice(-12).map((entry, i) => ({
+          x: i + 1,
+          y: entry.durationHours,
+          goal: entry.goalHours,
+        }));
 
-        const durationCtx = document.getElementById("durationChart").getContext("2d");
-        const gradient = durationCtx.createLinearGradient(0, 0, 0, 260);
-        gradient.addColorStop(0, "rgba(30, 164, 155, 0.5)");
-        gradient.addColorStop(1, "rgba(30, 164, 155, 0.05)");
-
-        state.charts.duration = new Chart(durationCtx, {
+        const progressCtx = document.getElementById("progressChart").getContext("2d");
+        state.charts.progress = new Chart(progressCtx, {
           type: "line",
           data: {
-            labels,
+            labels: progressData.map((d) => `#${d.x}`),
             datasets: [
               {
-                label: "Duration (hours)",
-                data: durations,
-                borderColor: "#0d6d6b",
-                backgroundColor: gradient,
-                borderWidth: 2,
-                tension: 0.35,
-                pointRadius: 3,
+                label: "Fast Duration",
+                data: progressData.map((d) => d.y),
+                borderColor: "rgb(79, 70, 229)",
+                backgroundColor: "rgba(79, 70, 229, 0.1)",
+                tension: 0.4,
                 fill: true,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: (context) => `${formatHours(context.raw)}`,
-                },
-              },
-            },
-            scales: {
-              y: {
-                ticks: {
-                  callback: (value) => `${value}h`,
-                },
-                grid: { color: "rgba(14,27,31,0.06)" },
-              },
-              x: {
-                grid: { display: false },
-              },
-            },
-          },
-        });
-
-        const goalCtx = document.getElementById("goalChart").getContext("2d");
-        state.charts.goal = new Chart(goalCtx, {
-          type: "bar",
-          data: {
-            labels: recentLabels,
-            datasets: [
-              {
-                label: "Duration",
-                data: recentEntries.map((entry) => entry.durationHours),
-                backgroundColor: "rgba(13, 109, 107, 0.75)",
-                borderRadius: 10,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: "rgb(79, 70, 229)",
+                pointBorderColor: "#fff",
+                pointBorderWidth: 2,
               },
               {
                 label: "Goal",
-                data: recentEntries.map((entry) => entry.goalHours ?? null),
-                backgroundColor: "rgba(244, 159, 63, 0.75)",
-                borderRadius: 10,
+                data: progressData.map((d) => d.goal),
+                borderColor: "rgb(16, 185, 129)",
+                backgroundColor: "rgba(16, 185, 129, 0.05)",
+                tension: 0.4,
+                fill: false,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                pointBackgroundColor: "rgb(16, 185, 129)",
+                pointBorderColor: "#fff",
+                pointBorderWidth: 2,
+                borderDash: [5, 5],
               },
             ],
           },
@@ -851,23 +888,67 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { position: "bottom" },
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  usePointStyle: true,
+                  padding: 15,
+                  font: {
+                    family: "Inter",
+                    size: 12,
+                    weight: 600,
+                  },
+                },
+              },
               tooltip: {
+                backgroundColor: "rgba(10, 14, 39, 0.95)",
+                padding: 12,
+                titleFont: {
+                  family: "Inter",
+                  size: 13,
+                  weight: 600,
+                },
+                bodyFont: {
+                  family: "Inter",
+                  size: 12,
+                },
+                cornerRadius: 8,
+                displayColors: true,
                 callbacks: {
-                  label: (context) =>
-                    `${context.dataset.label}: ${formatHours(context.raw)}`,
+                  label: (context) => {
+                    const label = context.dataset.label || "";
+                    const value = formatHours(context.parsed.y);
+                    return `${label}: ${value}`;
+                  },
                 },
               },
             },
             scales: {
               y: {
+                beginAtZero: true,
                 ticks: {
-                  callback: (value) => `${value}h`,
+                  font: {
+                    family: "Inter",
+                    size: 11,
+                  },
+                  color: "rgb(148, 163, 184)",
                 },
-                grid: { color: "rgba(14,27,31,0.06)" },
+                grid: {
+                  color: "rgba(148, 163, 184, 0.1)",
+                },
               },
               x: {
-                grid: { display: false },
+                ticks: {
+                  font: {
+                    family: "Inter",
+                    size: 11,
+                  },
+                  color: "rgb(148, 163, 184)",
+                },
+                grid: {
+                  display: false,
+                },
               },
             },
           },
@@ -902,15 +983,16 @@
               {
                 data: buckets,
                 backgroundColor: [
-                  "#ffd59e",
-                  "#ffc18a",
-                  "#f4a66b",
-                  "#e68064",
-                  "#b5e2d7",
-                  "#7cd4c2",
-                  "#3aa8a1",
+                  "rgba(99, 102, 241, 0.9)",
+                  "rgba(139, 92, 246, 0.9)",
+                  "rgba(168, 85, 247, 0.9)",
+                  "rgba(236, 72, 153, 0.9)",
+                  "rgba(16, 185, 129, 0.9)",
+                  "rgba(59, 130, 246, 0.9)",
+                  "rgba(245, 158, 11, 0.9)",
                 ],
                 borderWidth: 0,
+                hoverOffset: 8,
               },
             ],
           },
@@ -918,8 +1000,31 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { position: "bottom" },
+              legend: {
+                position: "bottom",
+                labels: {
+                  usePointStyle: true,
+                  padding: 12,
+                  font: {
+                    family: "Inter",
+                    size: 12,
+                    weight: 600,
+                  },
+                },
+              },
               tooltip: {
+                backgroundColor: "rgba(10, 14, 39, 0.95)",
+                padding: 12,
+                titleFont: {
+                  family: "Inter",
+                  size: 13,
+                  weight: 600,
+                },
+                bodyFont: {
+                  family: "Inter",
+                  size: 12,
+                },
+                cornerRadius: 8,
                 callbacks: {
                   label: (context) => `${context.label}: ${context.raw} fasts`,
                 },
@@ -955,15 +1060,7 @@
           ? `${Math.round(goalRate)}%`
           : "--";
         document.getElementById("statRolling").textContent = formatHours(rollingAvg);
-        document.getElementById("statConsistency").textContent = goals.length
-          ? `${goalHits.length}/${goals.length} goals`
-          : "--";
         document.getElementById("statTotalHours").textContent = formatHours(totalHours);
-        document.getElementById("statRecent").textContent = recent
-          ? `${formatShortDate(recent.endDate || recent.startDate)} · ${formatHours(
-              recent.durationHours
-            )}`
-          : "--";
 
         document.getElementById("lastUpdated").textContent = formatFullDate(
           recent.endDate || recent.startDate
@@ -974,15 +1071,27 @@
         const table = document.getElementById("recentTable");
         table.innerHTML = "";
         const recent = entries.slice(-6).reverse();
+        
+        if (recent.length === 0) {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td colspan="4" style="text-align: center; padding: 32px; color: var(--ink-lighter);">
+              No completed fasts yet
+            </td>
+          `;
+          table.appendChild(row);
+          return;
+        }
+
         recent.forEach((entry) => {
           const row = document.createElement("tr");
           const delta =
             entry.goalHours !== null ? entry.durationHours - entry.goalHours : null;
           row.innerHTML = `
             <td>${formatFullDate(entry.endDate || entry.startDate)}</td>
-            <td>${formatHours(entry.durationHours)}</td>
+            <td><strong>${formatHours(entry.durationHours)}</strong></td>
             <td>${entry.goalHours !== null ? formatHours(entry.goalHours) : "--"}</td>
-            <td>${delta !== null ? formatDelta(delta) : "--"}</td>
+            <td style="color: ${delta !== null ? (delta >= 0 ? 'var(--success)' : 'var(--danger)') : 'var(--ink-lighter)'}">${delta !== null ? formatDelta(delta) : "--"}</td>
           `;
           table.appendChild(row);
         });
@@ -1072,7 +1181,7 @@
 
         if (!entry || !entry.startDate) {
           title.textContent = "No active fast";
-          startLabel.textContent = "--";
+          startLabel.textContent = "Start a new fast to see progress";
           elapsedEl.textContent = "--";
           goalEl.textContent = "Goal: --";
           deltaEl.textContent = "--";
@@ -1092,11 +1201,11 @@
         elapsedEl.textContent = formatHours(elapsedHours);
         goalEl.textContent = hasGoal ? `Goal: ${formatHours(goalHours)}` : "Goal: --";
         if (remaining === null) {
-          deltaEl.textContent = "Goal not set yet";
+          deltaEl.textContent = "No goal set";
         } else if (remaining >= 0) {
-          deltaEl.textContent = `${formatHours(remaining)} remaining`;
+          deltaEl.textContent = `${formatHours(remaining)} left`;
         } else {
-          deltaEl.textContent = `${formatHours(Math.abs(remaining))} past goal`;
+          deltaEl.textContent = `${formatHours(Math.abs(remaining))} over`;
         }
         progressEl.style.width = `${Math.round(progress * 100)}%`;
       }
@@ -1124,10 +1233,10 @@
           buildInsights(completedEntries);
           buildRecentTable(completedEntries);
           updateCurrentFast(currentFast);
-          setStatus("Live data loaded.");
+          setStatus("Live data loaded");
         } catch (error) {
           console.error(error);
-          setStatus("Unable to fetch sheet data.");
+          setStatus("Unable to fetch sheet data");
         }
       }
 
