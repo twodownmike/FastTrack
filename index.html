@@ -1077,13 +1077,13 @@
           const csv = await fetchSheetCsv();
           const rows = csvToRows(csv);
           const entries = normalizeEntries(rows);
+          const currentFast = getCurrentFast(entries);
           const completedEntries = entries.filter(
             (entry) =>
-              entry.endDate &&
               entry.durationHours !== null &&
-              !Number.isNaN(entry.durationHours)
+              !Number.isNaN(entry.durationHours) &&
+              entry !== currentFast
           );
-          const currentFast = getCurrentFast(entries);
 
           if (!entries.length) {
             setStatus("No data found in the sheet.");
