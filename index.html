@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fasting Atlas Dashboard</title>
+    <title>FastTrack Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -110,6 +110,43 @@
         animation: rise 0.8s ease forwards;
       }
 
+      .site-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+
+      .logo-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, #0d6d6b, #1ea49b);
+        box-shadow: 0 10px 20px rgba(13, 109, 107, 0.25);
+        letter-spacing: 0.08em;
+      }
+
+      .logo-text {
+        display: grid;
+        gap: 2px;
+      }
+
+      .logo-text strong {
+        font-family: "Fraunces", serif;
+        font-size: 1.4rem;
+      }
+
+      .logo-text span {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.26em;
+        color: var(--ink-soft);
+      }
+
       .current-fast {
         background: linear-gradient(120deg, #fff2d6 0%, #e8fff7 100%);
         border-radius: var(--radius-lg);
@@ -184,26 +221,11 @@
         }
       }
 
-      .eyebrow {
-        text-transform: uppercase;
-        letter-spacing: 0.3em;
-        font-size: 0.75rem;
-        color: var(--accent);
-        margin-bottom: 12px;
-      }
-
       h1 {
         font-family: "Fraunces", serif;
         font-weight: 600;
         font-size: clamp(2.2rem, 3vw, 3.5rem);
-        margin: 0 0 12px;
-      }
-
-      .lead {
-        font-size: 1.05rem;
-        color: var(--ink-soft);
-        line-height: 1.6;
-        margin-bottom: 24px;
+        margin: 0 0 18px;
       }
 
       .hero-actions {
@@ -445,6 +467,13 @@
     </div>
 
     <div class="page">
+      <div class="site-header">
+        <div class="logo-mark">FT</div>
+        <div class="logo-text">
+          <strong>FastTrack</strong>
+          <span>Fasting Metrics</span>
+        </div>
+      </div>
       <section class="current-fast">
         <div class="current-fast-meta">
           <span>Current Fast</span>
@@ -462,12 +491,7 @@
       </section>
       <header class="hero">
         <div>
-          <div class="eyebrow">Fasting Dashboard</div>
-          <h1>Fasting Atlas</h1>
-          <p class="lead">
-            Live charts and insights from your Google Sheet. Track how long you fast,
-            how consistently you hit your goals, and where your momentum is building.
-          </p>
+          <h1>FastTrack</h1>
           <div class="hero-actions">
             <span class="chip">Source: Google Sheets</span>
             <button class="btn" id="refreshBtn">Refresh Data</button>
