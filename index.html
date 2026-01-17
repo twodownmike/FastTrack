@@ -1021,14 +1021,15 @@
       }
 
       function getCurrentFast(entries) {
-        const latest = entries
-          .filter((entry) => entry.startDate)
-          .sort((a, b) => b.startDate - a.startDate)[0];
-        if (!latest) return null;
-        const hasEnd = Boolean(latest.endDate);
-        const hasDuration = latest.durationHours !== null;
-        if (hasEnd || hasDuration) return null;
-        return latest;
+        const starts = entries.filter((entry) => entry.startDate);
+        if (!starts.length) return null;
+        const latestStart = starts.reduce((latest, entry) =>
+          entry.startDate > latest.startDate ? entry : latest
+        );
+        const hasEndAfterStart = entries.some(
+          (entry) => entry.endDate && entry.endDate >= latestStart.startDate
+        );
+        return hasEndAfterStart ? null : latestStart;
       }
 
       function updateCurrentFast(entry) {
@@ -1077,7 +1078,10 @@
           const rows = csvToRows(csv);
           const entries = normalizeEntries(rows);
           const completedEntries = entries.filter(
-            (entry) => entry.durationHours !== null && !Number.isNaN(entry.durationHours)
+            (entry) =>
+              entry.endDate &&
+              entry.durationHours !== null &&
+              !Number.isNaN(entry.durationHours)
           );
           const currentFast = getCurrentFast(entries);
 
