@@ -102,12 +102,12 @@
         padding: 48px 24px 64px;
       }
 
-      .hero {
+      .top-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 24px;
-        justify-items: end;
-        align-items: center;
+        grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
+        gap: 22px;
+        align-items: start;
+        margin-bottom: 28px;
         animation: rise 0.8s ease forwards;
       }
 
@@ -181,7 +181,6 @@
         align-items: center;
         gap: 16px;
         box-shadow: 0 12px 28px rgba(14, 27, 31, 0.12);
-        margin-bottom: 28px;
       }
 
       .current-fast h2 {
@@ -284,7 +283,6 @@
         box-shadow: var(--shadow);
         display: grid;
         gap: 16px;
-        width: min(100%, 520px);
       }
 
       .hero-panel h2 {
@@ -434,8 +432,8 @@
       }
 
       @media (max-width: 960px) {
-        .hero {
-          justify-items: stretch;
+        .top-grid {
+          grid-template-columns: 1fr;
         }
 
         .dashboard {
@@ -448,9 +446,6 @@
           grid-column: span 6;
         }
 
-        .hero-panel {
-          width: 100%;
-        }
       }
 
       @media (max-width: 640px) {
@@ -494,22 +489,22 @@
           <span class="status">Last refresh: <span id="lastUpdated">--</span></span>
         </div>
       </div>
-      <section class="current-fast">
-        <div class="current-fast-meta">
-          <span>Current Fast</span>
-          <h2 id="currentFastTitle">No active fast</h2>
-          <div class="status" id="currentFastStart">--</div>
-        </div>
-        <div class="current-fast-metrics">
-          <strong id="currentFastElapsed">--</strong>
-          <div class="status" id="currentFastGoal">Goal: --</div>
-          <div class="status" id="currentFastDelta">--</div>
-          <div class="progress">
-            <span id="currentFastProgress"></span>
+      <section class="top-grid">
+        <div class="current-fast">
+          <div class="current-fast-meta">
+            <span>Current Fast</span>
+            <h2 id="currentFastTitle">No active fast</h2>
+            <div class="status" id="currentFastStart">--</div>
+          </div>
+          <div class="current-fast-metrics">
+            <strong id="currentFastElapsed">--</strong>
+            <div class="status" id="currentFastGoal">Goal: --</div>
+            <div class="status" id="currentFastDelta">--</div>
+            <div class="progress">
+              <span id="currentFastProgress"></span>
+            </div>
           </div>
         </div>
-      </section>
-      <header class="hero">
         <div class="hero-panel">
           <h2>Snapshot</h2>
           <div class="stat-grid">
@@ -535,7 +530,7 @@
             <strong id="statRecent">--</strong>
           </div>
         </div>
-      </header>
+      </section>
 
       <main class="dashboard">
         <section class="card card-wide" style="--delay: 0.1s">
