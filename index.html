@@ -99,14 +99,14 @@
         z-index: 1;
         max-width: 1200px;
         margin: 0 auto;
-        padding: 48px 24px 64px;
+        padding: 32px 18px 48px;
       }
 
       .top-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
-        gap: 22px;
-        align-items: start;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+        align-items: stretch;
         margin-bottom: 28px;
         animation: rise 0.8s ease forwards;
       }
@@ -119,6 +119,8 @@
         flex-wrap: wrap;
         margin-bottom: 22px;
         animation: fadeUp 0.7s ease both;
+        flex-direction: column;
+        align-items: flex-start;
       }
 
       .logo-group {
@@ -163,7 +165,8 @@
         flex-wrap: wrap;
         gap: 10px 14px;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: flex-start;
+        width: 100%;
       }
 
       .header-actions .status {
@@ -171,7 +174,7 @@
       }
 
       .header-actions .status:last-child {
-        white-space: nowrap;
+        white-space: normal;
       }
 
       .current-fast {
@@ -184,7 +187,6 @@
         gap: 16px;
         box-shadow: 0 12px 28px rgba(14, 27, 31, 0.12);
         transition: transform 0.25s ease, box-shadow 0.25s ease;
-        height: 100%;
       }
 
       .current-fast:hover {
@@ -294,7 +296,6 @@
         box-shadow: var(--shadow);
         display: grid;
         gap: 16px;
-        height: 100%;
         transition: transform 0.25s ease, box-shadow 0.25s ease;
       }
 
@@ -342,8 +343,8 @@
       .dashboard {
         margin-top: 42px;
         display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 18px;
       }
 
       .card {
@@ -419,19 +420,19 @@
       }
 
       .card-wide {
-        grid-column: span 7;
+        grid-column: span 1;
       }
 
       .card-mid {
-        grid-column: span 5;
+        grid-column: span 1;
       }
 
       .card-half {
-        grid-column: span 4;
+        grid-column: span 1;
       }
 
       .card-full {
-        grid-column: span 12;
+        grid-column: span 1;
       }
 
       .insights {
@@ -556,37 +557,65 @@
         gap: 10px;
       }
 
-      @media (max-width: 960px) {
-        .top-grid {
-          grid-template-columns: 1fr;
+      @media (min-width: 720px) {
+        .page {
+          padding: 40px 24px 56px;
+        }
+
+        .site-header {
+          flex-direction: row;
+          align-items: center;
+        }
+
+        .header-actions {
+          width: auto;
+          justify-content: flex-end;
         }
 
         .dashboard {
           grid-template-columns: repeat(6, minmax(0, 1fr));
+          gap: 20px;
         }
 
         .card-wide,
         .card-mid,
-        .card-half,
         .card-full {
           grid-column: span 6;
         }
+
+        .card-half {
+          grid-column: span 3;
+        }
       }
 
-      @media (max-width: 640px) {
+      @media (min-width: 1024px) {
         .page {
-          padding: 32px 18px 48px;
+          padding: 52px 32px 70px;
+        }
+
+        .top-grid {
+          grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
+          gap: 22px;
         }
 
         .dashboard {
-          grid-template-columns: repeat(1, minmax(0, 1fr));
+          grid-template-columns: repeat(12, minmax(0, 1fr));
         }
 
-        .card-wide,
-        .card-mid,
-        .card-half,
+        .card-wide {
+          grid-column: span 7;
+        }
+
+        .card-mid {
+          grid-column: span 5;
+        }
+
+        .card-half {
+          grid-column: span 4;
+        }
+
         .card-full {
-          grid-column: span 1;
+          grid-column: span 12;
         }
       }
     </style>
