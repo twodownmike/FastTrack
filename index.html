@@ -952,7 +952,10 @@
             scales: {
               y: {
                 ticks: {
-                  callback: (value) => `${value}h`,
+                  callback: (value) => {
+                    const rounded = Math.round(Number(value) * 100) / 100;
+                    return `${rounded.toFixed(2)}h`;
+                  },
                 },
                 grid: { color: "rgba(14,27,31,0.06)" },
               },
@@ -1009,16 +1012,6 @@
           },
         });
 
-        const distribution = [0, 12, 16, 20, 24, 36, 48];
-        const buckets = distribution.map(() => 0);
-
-        entries.forEach((entry) => {
-          const hours = entry.durationHours;
-          let index = distribution.findIndex((limit) => hours < limit);
-          if (index === -1) index = distribution.length - 1;
-          buckets[index] += 1;
-        });
-
         const bucketLabels = [
           "<12h",
           "12-16h",
@@ -1028,6 +1021,24 @@
           "36-48h",
           "48h+",
         ];
+        const buckets = bucketLabels.map(() => 0);
+
+        const bucketIndexFor = (hours) => {
+          if (hours < 12) return 0;
+          if (hours < 16) return 1;
+          if (hours < 20) return 2;
+          if (hours < 24) return 3;
+          if (hours < 36) return 4;
+          if (hours < 48) return 5;
+          return 6;
+        };
+
+        entries.forEach((entry) => {
+          const hours = entry.durationHours;
+          if (hours === null || Number.isNaN(hours)) return;
+          const index = bucketIndexFor(hours);
+          buckets[index] += 1;
+        });
 
         const distCtx = document.getElementById("distributionChart").getContext("2d");
         state.charts.distribution = new Chart(distCtx, {
