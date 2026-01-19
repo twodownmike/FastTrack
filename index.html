@@ -396,6 +396,12 @@
         gap: 12px;
       }
 
+      .recap-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+      }
+
       .insight {
         background: linear-gradient(120deg, #fff2d6, #f2fff9);
         border-radius: var(--radius-md);
@@ -677,7 +683,30 @@
           </div>
         </section>
 
-        <section class="card card-wide" style="--delay: 0.28s">
+        <section class="card card-mid" style="--delay: 0.27s">
+          <h3>Weekly Recap</h3>
+          <p>Summary of the last 7 days.</p>
+          <div class="recap-grid">
+            <div class="stat-card">
+              <span>Total Hours</span>
+              <strong id="statWeeklyHours">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>Avg Duration</span>
+              <strong id="statWeeklyAvg">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>Goal Hit Rate</span>
+              <strong id="statWeeklyGoalRate">--</strong>
+            </div>
+            <div class="stat-card">
+              <span>Fasts Logged</span>
+              <strong id="statWeeklyCount">--</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card card-wide" style="--delay: 0.29s">
           <h3>Calendar Heatmap</h3>
           <p>Last 14 weeks of fasting volume.</p>
           <div class="heatmap" id="heatmapGrid"></div>
@@ -694,7 +723,7 @@
           </div>
         </section>
 
-        <section class="card card-full" style="--delay: 0.3s">
+        <section class="card card-full" style="--delay: 0.31s">
           <h3>Recent Fasts</h3>
           <p>Latest entries from your sheet.</p>
           <div style="overflow-x: auto">
@@ -1199,6 +1228,53 @@
         sinceEl.textContent = `${daysSince} day${daysSince === 1 ? "" : "s"}`;
       }
 
+      function buildWeeklyRecap(entries) {
+        const hoursEl = document.getElementById("statWeeklyHours");
+        const avgEl = document.getElementById("statWeeklyAvg");
+        const goalEl = document.getElementById("statWeeklyGoalRate");
+        const countEl = document.getElementById("statWeeklyCount");
+
+        if (!hoursEl || !avgEl || !goalEl || !countEl) return;
+        if (!entries.length) {
+          hoursEl.textContent = "--";
+          avgEl.textContent = "--";
+          goalEl.textContent = "--";
+          countEl.textContent = "--";
+          return;
+        }
+
+        const nowDay = toDay(new Date()).getTime();
+        const latestDay = Math.max(
+          ...entries
+            .map((entry) => entry.endDate || entry.startDate)
+            .filter(Boolean)
+            .map((date) => toDay(date).getTime())
+        );
+        const anchorDay = latestDay > nowDay ? latestDay : nowDay;
+        const windowStart = anchorDay - 6 * 86400000;
+
+        const windowEntries = entries.filter((entry) => {
+          const baseDate = entry.endDate || entry.startDate;
+          if (!baseDate) return false;
+          const dayMs = toDay(baseDate).getTime();
+          return dayMs >= windowStart && dayMs <= anchorDay;
+        });
+
+        const totalHours = windowEntries.reduce(
+          (sum, entry) => sum + (entry.durationHours || 0),
+          0
+        );
+        const avgHours = windowEntries.length ? totalHours / windowEntries.length : null;
+        const goals = windowEntries.filter((entry) => entry.goalHours !== null);
+        const goalHits = goals.filter((entry) => entry.durationHours >= entry.goalHours);
+        const goalRate = goals.length ? Math.round((goalHits.length / goals.length) * 100) : null;
+
+        hoursEl.textContent = formatHours(totalHours);
+        avgEl.textContent = avgHours !== null ? formatHours(avgHours) : "--";
+        goalEl.textContent = goalRate !== null ? `${goalRate}%` : "--";
+        countEl.textContent = windowEntries.length.toString();
+      }
+
       function buildHeatmap(entries) {
         const container = document.getElementById("heatmapGrid");
         if (!container) return;
@@ -1430,6 +1506,7 @@
           buildCharts(completedEntries);
           buildTimePatterns(entries);
           buildStreaks(completedEntries);
+          buildWeeklyRecap(completedEntries);
           buildHeatmap(completedEntries);
           buildInsights(completedEntries);
           buildRecentTable(completedEntries);
