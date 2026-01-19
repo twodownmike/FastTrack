@@ -247,6 +247,51 @@
         animation: progressShift 6s ease-in-out infinite;
       }
 
+      .milestones {
+        width: 100%;
+        display: grid;
+        gap: 8px;
+        margin-top: 6px;
+      }
+
+      .milestones-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-soft);
+      }
+
+      .milestones-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .milestone {
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        background: rgba(14, 27, 31, 0.08);
+        color: var(--ink-soft);
+      }
+
+      .milestone.done {
+        background: rgba(13, 109, 107, 0.2);
+        color: var(--accent);
+      }
+
+      .milestone.current {
+        background: #0d6d6b;
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(13, 109, 107, 0.25);
+      }
+
+      .milestone.muted {
+        font-weight: 500;
+      }
+
       @keyframes rise {
         from {
           opacity: 0;
@@ -658,6 +703,10 @@
               <span id="currentFastProgress"></span>
             </div>
           </div>
+          <div class="milestones">
+            <div class="milestones-label">Phases</div>
+            <div class="milestones-row" id="fastMilestones"></div>
+          </div>
         </div>
         <div class="hero-panel">
           <h2>Snapshot</h2>
@@ -832,6 +881,14 @@
       const SHEET_ID = "1AgRJFJfRu6lz_73qK8KNytFWQv9HrwwZnr5aeQfcy0M";
       const SHEET_NAME = "Form Responses 2";
       const state = { charts: {} };
+      const FAST_PHASES = [
+        { hours: 4, label: "Phase 1" },
+        { hours: 8, label: "Phase 2" },
+        { hours: 12, label: "Phase 3" },
+        { hours: 16, label: "Phase 4" },
+        { hours: 20, label: "Phase 5" },
+        { hours: 24, label: "Phase 6" },
+      ];
 
       const statusText = document.getElementById("statusText");
       const refreshBtn = document.getElementById("refreshBtn");
@@ -986,6 +1043,43 @@
         if (delta === null || Number.isNaN(delta)) return "--";
         const sign = delta >= 0 ? "+" : "-";
         return `${sign}${formatHours(Math.abs(delta))}`;
+      }
+
+      function renderMilestones(elapsedHours) {
+        const row = document.getElementById("fastMilestones");
+        if (!row) return;
+        row.innerHTML = "";
+
+        if (elapsedHours === null || Number.isNaN(elapsedHours)) {
+          const chip = document.createElement("span");
+          chip.className = "milestone muted";
+          chip.textContent = "Start a fast to see phases";
+          row.appendChild(chip);
+          return;
+        }
+
+        let currentSet = false;
+        FAST_PHASES.forEach((phase) => {
+          let status = "upcoming";
+          if (elapsedHours >= phase.hours) {
+            status = "done";
+          } else if (!currentSet) {
+            status = "current";
+            currentSet = true;
+          }
+
+          const chip = document.createElement("span");
+          chip.className = `milestone ${status}`;
+          chip.textContent = `${phase.label} · ${phase.hours}h`;
+
+          if (status === "done") {
+            chip.title = `Reached at ${formatHours(phase.hours)}`;
+          } else {
+            const remaining = Math.max(0, phase.hours - elapsedHours);
+            chip.title = `${formatHours(remaining)} to go`;
+          }
+          row.appendChild(chip);
+        });
       }
 
       function toDay(date) {
@@ -1538,6 +1632,7 @@
           goalEl.textContent = "Goal: --";
           deltaEl.textContent = "--";
           progressEl.style.width = "0%";
+          renderMilestones(null);
           return;
         }
 
@@ -1560,6 +1655,7 @@
           deltaEl.textContent = `${formatHours(Math.abs(remaining))} past goal`;
         }
         progressEl.style.width = `${Math.round(progress * 100)}%`;
+        renderMilestones(elapsedHours);
       }
 
       async function loadDashboard() {
