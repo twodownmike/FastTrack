@@ -262,34 +262,58 @@
       }
 
       .milestones-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
       }
 
       .milestone {
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        background: rgba(14, 27, 31, 0.08);
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(14, 27, 31, 0.06);
         color: var(--ink-soft);
+        display: grid;
+        gap: 4px;
+        border: 1px solid rgba(14, 27, 31, 0.06);
       }
 
       .milestone.done {
-        background: rgba(13, 109, 107, 0.2);
+        background: rgba(13, 109, 107, 0.14);
         color: var(--accent);
+        border-color: rgba(13, 109, 107, 0.25);
       }
 
       .milestone.current {
         background: #0d6d6b;
         color: #fff;
         box-shadow: 0 8px 18px rgba(13, 109, 107, 0.25);
+        border-color: transparent;
       }
 
       .milestone.muted {
-        font-weight: 500;
+        opacity: 0.7;
+      }
+
+      .milestone-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .milestone-desc {
+        font-size: 0.7rem;
+        line-height: 1.2;
+      }
+
+      .milestone-time {
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+      }
+
+      .milestones-note {
+        font-size: 0.72rem;
+        color: var(--ink-soft);
       }
 
       @keyframes rise {
@@ -706,6 +730,7 @@
           <div class="milestones">
             <div class="milestones-label">Phases</div>
             <div class="milestones-row" id="fastMilestones"></div>
+            <div class="milestones-note">Approximate phases for context.</div>
           </div>
         </div>
         <div class="hero-panel">
@@ -882,12 +907,12 @@
       const SHEET_NAME = "Form Responses 2";
       const state = { charts: {} };
       const FAST_PHASES = [
-        { hours: 4, label: "Phase 1" },
-        { hours: 8, label: "Phase 2" },
-        { hours: 12, label: "Phase 3" },
-        { hours: 16, label: "Phase 4" },
-        { hours: 20, label: "Phase 5" },
-        { hours: 24, label: "Phase 6" },
+        { hours: 4, title: "Fed to Fasted", detail: "Digestive window winds down" },
+        { hours: 8, title: "Glycogen Use", detail: "Stored carbs taper" },
+        { hours: 12, title: "Metabolic Shift", detail: "Fat use increases" },
+        { hours: 16, title: "Ketone Rise", detail: "Ketones climb" },
+        { hours: 20, title: "Deep Fast", detail: "Long-fast zone" },
+        { hours: 24, title: "Extended", detail: "Beyond 24h" },
       ];
 
       const statusText = document.getElementById("statusText");
@@ -1050,33 +1075,36 @@
         if (!row) return;
         row.innerHTML = "";
 
-        if (elapsedHours === null || Number.isNaN(elapsedHours)) {
-          const chip = document.createElement("span");
-          chip.className = "milestone muted";
-          chip.textContent = "Start a fast to see phases";
-          row.appendChild(chip);
-          return;
-        }
-
+        const hasElapsed = Number.isFinite(elapsedHours);
         let currentSet = false;
         FAST_PHASES.forEach((phase) => {
-          let status = "upcoming";
-          if (elapsedHours >= phase.hours) {
-            status = "done";
-          } else if (!currentSet) {
-            status = "current";
-            currentSet = true;
+          let status = "muted";
+          if (hasElapsed) {
+            if (elapsedHours >= phase.hours) {
+              status = "done";
+            } else if (!currentSet) {
+              status = "current";
+              currentSet = true;
+            } else {
+              status = "upcoming";
+            }
           }
 
-          const chip = document.createElement("span");
+          const chip = document.createElement("div");
           chip.className = `milestone ${status}`;
-          chip.textContent = `${phase.label} · ${phase.hours}h`;
+          chip.innerHTML = `
+            <div class="milestone-title">${phase.title}</div>
+            <div class="milestone-desc">${phase.detail}</div>
+            <div class="milestone-time">${phase.hours}h mark</div>
+          `;
 
-          if (status === "done") {
-            chip.title = `Reached at ${formatHours(phase.hours)}`;
-          } else {
-            const remaining = Math.max(0, phase.hours - elapsedHours);
-            chip.title = `${formatHours(remaining)} to go`;
+          if (hasElapsed) {
+            if (status === "done") {
+              chip.title = `Reached at ${formatHours(phase.hours)}`;
+            } else {
+              const remaining = Math.max(0, phase.hours - elapsedHours);
+              chip.title = `${formatHours(remaining)} to go`;
+            }
           }
           row.appendChild(chip);
         });
